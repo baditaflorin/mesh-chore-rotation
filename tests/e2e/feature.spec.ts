@@ -96,3 +96,49 @@ test("weekly rotation rotates AND stays peer-identical on a navigated week", asy
     await cleanup();
   }
 });
+
+test("the shuffle is actually FAIR: chore load is balanced across people over weeks", async ({
+  browser,
+  baseURL,
+}) => {
+  // The headline is a "deterministic FAIR shuffle". With 5 chores and 3
+  // people the chores don't divide evenly, so a naive fixed-index mapping
+  // overloads the same people every week. Walk a full set of weeks and
+  // assert nobody does more than one chore beyond anyone else.
+  const { a, b, cleanup } = await openTwoPeers(browser, baseURL ?? "", { storagePrefix });
+  try {
+    for (const p of ["alice", "bob", "carol"]) {
+      await a.getByPlaceholder("add person").fill(p);
+      await a
+        .locator(".rot-col")
+        .filter({ hasText: "people" })
+        .getByRole("button", { name: "+", exact: true })
+        .click();
+    }
+    for (const c of ["dishes", "trash", "vacuum", "laundry", "floors"]) {
+      await a.getByPlaceholder("add chore").fill(c);
+      await a
+        .locator(".rot-col")
+        .filter({ hasText: "chores" })
+        .getByRole("button", { name: "+", exact: true })
+        .click();
+    }
+    await expect(b.locator(".rot-assign")).toHaveCount(5);
+
+    const counts: Record<string, number> = { alice: 0, bob: 0, carol: 0 };
+    // 12 weeks = four full 3-person rotation cycles. Tally on peer B (the
+    // roster was entered on A) to also prove the fair assignment is what the
+    // OTHER peer renders from the synced roster + week seed.
+    for (let week = 0; week < 12; week++) {
+      const people = await b.locator(".rot-assign .rot-person").allInnerTexts();
+      for (const name of people) counts[name.trim()] = (counts[name.trim()] ?? 0) + 1;
+      await b.getByRole("button", { name: "next week" }).click();
+    }
+
+    const loads = Object.values(counts);
+    const spread = Math.max(...loads) - Math.min(...loads);
+    expect(spread, `chore load per person: ${JSON.stringify(counts)}`).toBeLessThanOrEqual(1);
+  } finally {
+    await cleanup();
+  }
+});

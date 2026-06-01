@@ -85,12 +85,20 @@ function Body({ room }: { room: YRoom }) {
   const peopleArr = people.toArray();
   const choresArr = chores.toArray();
 
-  const seed = (viewYear * 53 + viewWeek) ^ peopleArr.length;
+  // Deterministic, peer-identical assignment for a given (year, week):
+  //  1. shuffle the chore order from a week-derived seed, and
+  //  2. rotate which person starts each week so that when chores don't
+  //     divide evenly across people, the leftover chores cycle through
+  //     everyone instead of always landing on the same low-index people.
+  // Without the rotation, "fair shuffle" was a lie: with 5 chores / 3
+  // people the person at index 2 did half as many chores every week.
+  const seed = (viewYear * 53 + viewWeek) >>> 0;
   const rng = mulberry32(seed);
   const shuffledChores = shuffle(choresArr, rng);
+  const offset = peopleArr.length > 0 ? viewWeek % peopleArr.length : 0;
   const assignments = shuffledChores.map((c, i) => ({
     chore: c,
-    person: peopleArr.length > 0 ? peopleArr[i % peopleArr.length] : null,
+    person: peopleArr.length > 0 ? peopleArr[(i + offset) % peopleArr.length] : null,
   }));
 
   const addPerson = (e: React.FormEvent) => {
@@ -145,6 +153,11 @@ function Body({ room }: { room: YRoom }) {
         <p className="rot-status">
           {choresArr.length} {choresArr.length === 1 ? "chore" : "chores"} · {peopleArr.length}{" "}
           {peopleArr.length === 1 ? "person" : "people"} · {room.peerCount + 1} present
+        </p>
+        <p className="rot-intro">
+          Add your people and chores once. Everyone in the same room (open this page in another tab
+          to try it) sees the exact same assignments, and they rotate fairly every week — no
+          account, no server.
         </p>
       </header>
 
@@ -246,7 +259,8 @@ function Body({ room }: { room: YRoom }) {
       </section>
 
       <p className="rot-fineprint">
-        deterministic shuffle — every peer in the room sees identical assignments for a given week.
+        Deterministic fair shuffle — every peer sees identical assignments for a given week, and
+        each person carries the same number of chores over a full rotation.
       </p>
     </div>
   );

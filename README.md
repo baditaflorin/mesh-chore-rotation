@@ -4,7 +4,9 @@
 [![version](https://img.shields.io/badge/version-0.1.1-blue)](https://github.com/baditaflorin/mesh-chore-rotation/blob/main/package.json)
 [![license](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
 
-> Weekly chore rotation with deterministic fair shuffle, no account, mesh-synced
+> Weekly chore rotation that's the same for everyone and fair over time — no account, no server
+
+**Try it in 30 seconds:** open the [live page](https://baditaflorin.github.io/mesh-chore-rotation/) in two browser tabs. Add a few people and chores in one tab — the other shows the exact same weekly assignments instantly. Step through the weeks and the chores rotate so everyone carries an equal load.
 
 Live: **https://baditaflorin.github.io/mesh-chore-rotation/**
 
