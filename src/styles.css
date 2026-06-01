@@ -39,6 +39,14 @@ body,
   font-size: 0.9rem;
 }
 
+.rot-intro {
+  margin: 0.5rem 0 0;
+  opacity: 0.6;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  max-width: 42ch;
+}
+
 .rot-week {
   display: flex;
   gap: 0.5rem;
