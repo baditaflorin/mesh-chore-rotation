@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "app": "mesh-chore-rotation",
+  "sourceCommit": "e2cda05a67686918b28bde10814aea86839baecf",
+  "releaseCommit": "e2cda05a67686918b28bde10814aea86839baecf",
+  "meshCommonCommit": "025f7ff72e50c4b54a3f4a2d8c88f4f600dec78f",
+  "recordedAt": "2026-08-27T12:27:27Z"
+}
